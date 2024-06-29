@@ -1,0 +1,28 @@
+
+
+def split(dataset , train_ratio,val_ratio,test_ratio):
+  dataset_size = len(dataset)
+  train_dataset = dataset.take(int(train_ratio*dataset_size))
+  val_dataset = dataset.skip(int(train_ratio*dataset_size)).take(int(val_ratio*dataset_size))
+  test_dataset = dataset.skip(int(train_ratio*dataset_size)+int(val_ratio*dataset_size))
+ 
+  return train_dataset,val_dataset,test_dataset
+
+train_ratio = 0.7
+val_ratio = 0.1
+test_ratio = 0.2
+train_dataset, val_dataset, test_dataset = split(dataset[0],train_ratio,val_ratio,test_ratio)
+
+# Normalization
+
+def resizie_rescale(image, label):
+  image = tf.image.resize(image, (224, 224))/255.0
+  return image, label
+train_dataset = train_dataset.map(resizie_rescale)
+val_dataset = val_dataset.map(resizie_rescale)
+test_dataset = test_dataset.map(resizie_rescale)
+
+train_dataset = train_dataset.shuffle(buffer_size = 8 , reshuffle_each_iteration=True , ).batch(32).prefetch(tf.data.AUTOTUNE)
+val_dataset = val_dataset.shuffle(buffer_size = 8 , reshuffle_each_iteration=True , ).batch(32).prefetch(tf.data.AUTOTUNE)
+
+
